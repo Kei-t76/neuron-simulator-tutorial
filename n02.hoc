@@ -1,0 +1,13 @@
+//n02.hoc:
+
+strdef s
+s = "Hello, World!"
+
+//書き込み用テキストファイルopen
+wopen("n02.txt")
+for t = 0, 3{
+    fprint("%d %s\n", t, s)
+}
+
+//閉じる場合は引数なしでwopen()
+wopen()

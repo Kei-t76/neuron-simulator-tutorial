@@ -1,0 +1,14 @@
+//n03.hoc:
+//出力したグラフはgnuplotでグラフ化
+
+wopen("n03.txt")
+
+//数値は宣言なしで使用可
+tstop = 200
+
+for t = 0, tstop{
+    //実数の出力フォーマットは%f
+    fprint("%f %f\n", t, sin(0.1*t))
+}
+
+wopen()

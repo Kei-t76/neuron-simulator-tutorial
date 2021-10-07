@@ -1,0 +1,21 @@
+//n04.hoc:
+//出力したグラフはgnuplotでグラフ化
+
+//オブジェクト作成の際の変数の宣言
+objref fp
+//オブジェクト作成
+fp = new File()
+fp.wopen("n04.dat")
+
+//double型の配列宣言
+double a[2]
+
+tstop = 200
+for t=0, tstop{
+    a[0] = t
+    a[1] = sin(0.1*t)
+    //バイナリファイルへの書き込みはvwrite
+    fp.vwrite(2, &a)
+}
+
+fp.close()
