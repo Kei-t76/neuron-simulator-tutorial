@@ -1,0 +1,14 @@
+//n01.hoc: 
+
+//数値以外の変数は宣言が必要
+//文字列宣言はstrdef
+
+strdef s
+s = "Hello, World!"
+
+//for文でsを繰り返し表示
+//出力フォーマット, %d 10進数整数, %s 文字列
+
+for t = 0, 3{
+    printf("%d %s\n", t, s)
+}
