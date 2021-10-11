@@ -1,0 +1,28 @@
+//n05.hoc:
+//出力したグラフはgnuplotでグラフ化
+
+//神経細胞のコンパートメントを定義
+create soma
+
+//hhパッケージを挿入
+soma insert hh
+
+tstop = 200
+dt = 0.01
+v_init = -65
+
+wopen("n05.txt")
+
+//電圧, 電流の初期化?
+finitialize(v_init)
+fcurrent()
+
+//計算
+while(t<tstop){
+    //1ステップ計算を行う
+    fadvance()
+    //時間経過とsomaの真ん中０．５部分の膜電位変化を記録
+    fprint("%f %f\n", t, soma.v(0.5))
+}
+
+wopen()

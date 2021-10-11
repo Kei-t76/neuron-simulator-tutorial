@@ -1,0 +1,76 @@
+//n09.hoc:
+//Classの作成
+
+//HHneuronのクラス(テンプレート)作成
+begintemplate HHneuron
+    //publicで宣言された変数, 関数は外部からアクセス可
+    public soma, ap_dend, esyn
+    create soma, ap_dend
+    objref esyn
+    //initで変数を明示的に初期化
+    proc init(){
+        soma{
+            soma.diam = 30
+            soma.nseg = 1
+            soma insert hh
+        }
+        ap_dend{
+            L = 500
+            diam = 2
+            nseg = 23
+            insert hh
+            gnabar_hh = 0.012
+            gkbar_hh = 0.0036
+            gl_hh = 0.00003            
+        }
+        connect ap_dend(0), soma(1)
+        //Exp2Synを生成し, パラメータを記述
+        ap_dend esyn = new Exp2Syn(0.5)
+        esyn.tau1 = 0.5
+        esyn.tau2 = 1.0
+        esyn.e = 0
+    }
+endtemplate HHneuron
+
+
+//上述のクラス(テンプレート)からインスタンス作成
+objref hh_neuron[2]
+hh_neuron[0] = new HHneuron()
+hh_neuron[1] = new HHneuron()
+
+//刺激
+objref stim
+stim = new NetStim(0.5)
+stim.interval = 20  //スパイク間の時間
+stim.number = 3     //スパイクの回数
+stim.start = 20     //最初のスパイクの開始時間
+stim.noise = 0      //ランダムノイズなし(0)あり(1)
+
+//生成したインスタンス同士の結合
+objref nclist
+nclist = new List()
+/*入力刺激とhh_neuron[0]を結合
+nclist.append(new NetCon(src_pp, target_pp, threshould, delay, weight))
+*/
+
+nclist.append(new NetCon(stim, hh_neuron[0].esyn, 0.0, 0, 0.02))
+/*
+hh_neuron[0]とhh_neuron[1]を結合
+src_section nclist.append(new NetCon(&src_range_value, taeget_pp, threshould, delay, weight))
+*/
+hh_neuron[0].soma nclist.append(new NetCon(&v(0.5), hh_neuron[1].esyn, 10, 1, 0.02))
+
+tstop = 200
+dt = 0.01
+v_init = -65
+
+wopen("n09.txt")
+finitialize(v_init)
+fcurrent()
+
+while(t<tstop){
+    fadvance()
+    fprint("%f %f %f\n", t, hh_neuron[0].soma.v(0.5), hh_neuron[1].soma.v(0.5))
+}
+
+wopen()

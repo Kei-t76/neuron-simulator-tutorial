@@ -1,0 +1,68 @@
+//n08.hoc:
+//PointProcessを追加(IClamp, VClamp, alphaSynapse)など
+
+create soma, ap_dend
+
+soma{
+    L = 30
+    diam = 30
+    nseg = 1
+    insert hh
+}
+
+//ap_dendにsomaの1/10のdensityでhhを追加
+/*density: チャネルの密度
+hhの場合は
+K+チャネル  : gkbar_hh
+Na+チャネル : gnabar_hh
+leakチャネル: gl_hh
+が用意されている
+*/
+
+ap_dend{
+    L = 500
+    diam = 2
+    nseg = 23
+    insert hh
+    //チャネルの密度を1/10に変更
+    gnabar_hh = 0.012
+    gkbar_hh = 0.0036
+    gl_hh = 0.00003
+}
+
+connect ap_dend(0), soma(1)
+
+//ap_dendに対するシナプス入力
+//オブジェクト作成の際の変数の宣言
+objref syn
+//インスタンス生成
+ap_dend syn = new AlphaSynapse(0.5)
+
+//AlphaSynapseのパラメータ設定
+/*
+syn.onset:開始から何msで電流を注入するか
+syn.tau  :syn.gmaxに到達するまでの時間
+syn.gmax :最大電流
+*/
+
+syn.onset = 5
+syn.tau = 0.1
+syn.gmax = 0.05
+
+tstop = 20
+dt = 0.01
+v_init = -65
+
+wopen("n08.txt")
+finitialize(v_init)
+fcurrent()
+
+while(t<tstop){
+    fadvance()
+    fprint("%f %f %f %f\n", t, soma.v(0.5), ap_dend.v(0.1), ap_dend.v(0.9))
+}
+
+wopen()
+
+
+

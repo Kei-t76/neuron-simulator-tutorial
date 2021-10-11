@@ -1,0 +1,30 @@
+//n06.hoc:
+//出力したグラフはgnuplotでグラフ化
+
+//神経細胞のコンパートメントを定義
+create soma
+
+//hhパッケージを挿入
+soma insert hh
+//リーク電流の平衡電位を変更
+soma el_hh = -30
+
+tstop = 200
+dt = 0.01
+v_init = -65
+
+wopen("n06.txt")
+
+//電圧, 電流の初期化?
+finitialize(v_init)
+fcurrent()
+
+//計算
+while(t<tstop){
+    //1ステップ計算を行う
+    fadvance()
+    //時間経過とsomaの真ん中０．５部分の膜電位変化を記録
+    fprint("%f %f\n", t, soma.v(0.5))
+}
+
+wopen()

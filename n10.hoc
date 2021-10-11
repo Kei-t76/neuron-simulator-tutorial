@@ -1,0 +1,65 @@
+//n10.hoc:
+//Voltage clamp
+
+create soma
+objref esyn
+objref vcl
+
+//somaの特性
+soma{
+    L = 30
+    diam = 30
+    nseg = 1
+    esyn = new Exp2Syn(0.5)
+    insert hh
+    vcl = new VClamp(0.5)
+}
+
+//入力刺激
+objref stim
+stim = new NetStim(0.5)
+stim.interval = 50
+stim.number = 2
+stim.start = 50
+stim.noise = 0
+
+//シナプス結合
+objref nclist
+nclist = new List()
+/*入力刺激とsomaを結合
+nclist.append(new NetCon(src_pp, target_pp, threshould, delay, weight))
+*/
+nclist.append(new NetCon(stim, esyn, 0.0, 0, 0.005))
+
+tstop = 200
+dt = 0.01
+v_init = -65
+
+/*VClampの設定
+vclを始める時間はtime = 0から
+durとampで3段階のクランプができる
+終了はdur[0] + dur[1] + dur[2]の時間
+*/
+
+vcl.dur[0] = 70
+vcl.dur[1] = 70
+vcl.dur[2] = 60
+
+vcl.amp[0] = -65
+vcl.amp[1] = -50
+vcl.amp[2] = -65
+
+vcl.gain = 1000
+vcl.tau1 = 0.02
+vcl.tau2 = 0.04
+
+wopen("n10.txt")
+finitialize(v_init)
+fcurrent()
+
+while(t<tstop){
+    fadvance()
+    fprint("%f %f %f\n", t, soma.v(0.5), vcl.i)
+}
+
+wopen()
