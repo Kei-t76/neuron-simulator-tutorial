@@ -1,0 +1,72 @@
+//n11.hoc
+//電流, 電圧の関係グラフ
+
+tstop = 50
+dt = 0.01
+vstart = -100   //電圧の初期値
+vstep = 10      //1ステップあたりの変化
+ntrace = 20     //試行回数(電位変化)
+npnt = tstop/dt //試行回数(各ステップ)
+
+double a[npnt][ntrace+1] //記録用配列
+
+objref vc, syn, ns, nc
+
+//細胞体
+create soma
+soma{
+    diam = 30
+    L = 30
+    nseg = 1
+    //insert pasでリーク電流の平衡電位が保持電位と同じであるとして保持電流を消す
+    insert pas
+    vc = new VClamp(0.5)
+    vc.dur[0] = 10
+    vc.dur[1] = 10
+    vc.dur[2] = 30
+    syn = new Exp2Syn(0.5)
+    syn.e = 0
+}
+
+//入力刺激
+ns = new NetStim()
+ns.number = 1
+ns.start = 10
+ns.start = 10
+ns.noise = 0
+
+nc = new List()
+nc.append(new NetCon(ns, syn, 0, 0, 0.001))
+
+//計算
+for i=1, ntrace{
+    v_init = vstart + vstep * (i-1) //clampする膜電位を定義
+    vc.amp[0] = v_init  //ampは全て同じ値で固定
+    vc.amp[1] = v_init
+    vc.amp[2] = v_init
+
+    e_pas = v_init //リーク電流の平衡電位
+    finitialize(v_init)
+    fcurrent()
+    for j = 0, npnt-1 { 
+        fadvance()
+        if(i==1) a[j][0] = t
+        a[j][i] = 100 * vc.i
+    }
+}
+//txtファイルに書き込み
+wopen("n11.txt")
+for j = 0, npnt-1{
+    for i = 0, ntrace{
+        fprint("%f ", a[j][i])
+    }
+    fprint("\n")
+}
+wopen()
+
+//gnuplotコマンド
+for i = 2, ntrace+1{
+    if(i==2) printf("plot ")
+    printf("\"n11.txt\" using 1:%d w l,", i)
+}
+

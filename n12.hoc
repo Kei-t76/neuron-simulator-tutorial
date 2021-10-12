@@ -1,0 +1,77 @@
+//n12.hoc
+
+create soma, dend[10]
+objref esyn
+objref vcl
+
+//soma
+soma{
+    L = 30
+    Ra = 100
+    nseg = 1
+    diam = 30
+    insert hh
+    vcl = new VClamp(0.5)
+}
+
+//dendrite
+for i=0,9{
+    dend[i]{
+        L = 300
+        Ra = 100
+        nseg = 21
+        diam = 2
+        insert hh
+        gl_hh *= 2.3  //乗算代入演算子 gl_hhに2.3を掛けて代入
+    }
+}
+
+dend[0] esyn = new Exp2Syn(0.75)
+for i=0, 9{
+    connect dend[i](0), soma(1)
+}
+
+//入力刺激
+objref stim
+stim = new NetStim(0.5)
+stim.interval = 50
+stim.number = 2
+stim.start = 50
+stim.noise = 0
+
+//シナプス結合
+//入力刺激とesynを結合
+objref nclist
+nclist = new List()
+nclist.append(new NetCon(stim, esyn, 0.0, 0, 0.001))
+
+tstop = 200
+dt = 0.01
+v_init = -65
+
+vcl.dur[0] = 10
+vcl.dur[0] = 10
+vcl.dur[0] = 180
+
+vcl.amp[0] = v_init
+vcl.amp[1] = v_init
+vcl.amp[2] = v_init
+
+vcl.gain = 1000
+vcl.tau1 = 0.1
+vcl.tau2 = 0.1
+
+double a[4] //記録用配列
+finitialize(v_init)
+fcurrent()
+
+wopen("n12.txt")
+while(t<tstop){
+    fadvance()
+    fprint("%f %f %f %f\n", t, soma.v(0.5), dend[0].v(0.75), 100 * vcl.i)
+}
+wopen()
+
+/*興奮性電流がシナプスから流入するが, VClampされているため
+陽電荷過多→負電荷流入でsoma計測での電流はマイナス方向に傾く
+*/
